@@ -9,7 +9,7 @@ import lombok.*;
  * some-personal-projects
  */
 
-@Entity(name = "bot_users")
+@Entity(name = "bot_responses")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,7 +22,7 @@ public class BotResponse {
     private Long id;
 
     @Column(name = "text", nullable = false)
-    private String text;
+    private String response;
 
     @Column(name = "userId", nullable = false)
     private Long userId;

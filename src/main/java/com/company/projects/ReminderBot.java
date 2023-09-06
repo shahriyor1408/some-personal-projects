@@ -1,12 +1,16 @@
 package com.company.projects;
 
+import com.company.projects.service.BotRequestService;
+import com.company.projects.service.BotService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.DeleteChatPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -18,11 +22,13 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 
 @Component
+@RequiredArgsConstructor
+@EnableScheduling
 public class ReminderBot extends TelegramLongPollingBot {
-
     private String botToken;
-
     private String botUsername;
+    private final BotService botService;
+    private final BotRequestService botRequestService;
 
     public void setBotToken(String botToken) {
         this.botToken = botToken;
@@ -34,12 +40,12 @@ public class ReminderBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        Message message = update.getMessage();
         if (update.hasMessage()) {
-            Message message = update.getMessage();
-            SendMessage sendMessage = new SendMessage();
-            sendMessage.setChatId(String.valueOf(message.getChatId()));
-            sendMessage.setText("Hi, I'm reminder bot");
-            sendMsg(sendMessage);
+            botService.addUser(message);
+            botService.sendSimpleMessage(message);
+        } else if (update.hasCallbackQuery()) {
+            botRequestService.handleCallBack(update.getCallbackQuery());
         }
     }
 
@@ -61,9 +67,9 @@ public class ReminderBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMsg(EditMessageText editMessageText) {
+    public void sendMsg(EditMessageReplyMarkup editMessageReplyMarkup) {
         try {
-            execute(editMessageText);
+            execute(editMessageReplyMarkup);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
@@ -85,9 +91,9 @@ public class ReminderBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMsg(SendDocument sendDocument) {
+    public void sendMsg(DeleteChatPhoto deleteChatPhoto) {
         try {
-            execute(sendDocument);
+            execute(deleteChatPhoto);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
