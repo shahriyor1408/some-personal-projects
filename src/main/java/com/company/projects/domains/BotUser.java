@@ -1,8 +1,6 @@
 package com.company.projects.domains;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 
 /**
@@ -26,7 +24,7 @@ public class BotUser {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(name = "chat_id", nullable = false, unique = true)
+    @Column(name = "chat_id", nullable = false)
     private String chatId;
 
     @Column(name = "user_id", nullable = false, unique = true)
@@ -43,4 +41,7 @@ public class BotUser {
 
     @Column(name = "order_number")
     private Integer orderNumber;
+
+    @Column(name = "activity")
+    private Boolean activity;
 }

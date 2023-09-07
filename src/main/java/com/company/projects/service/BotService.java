@@ -4,17 +4,17 @@ import com.company.projects.ReminderBot;
 import com.company.projects.domains.BotUser;
 import com.company.projects.repository.BotRepository;
 import com.company.projects.util.InlineKeyboardUtil;
+import com.company.projects.util.MessageUtil;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -31,31 +31,24 @@ public class BotService {
 
     private final InlineKeyboardUtil util;
 
-    public BotService(BotRepository botRepository, @Lazy ReminderBot reminderBot, InlineKeyboardUtil util) {
+    private final MessageUtil messageUtil;
+
+    public BotService(BotRepository botRepository, @Lazy ReminderBot reminderBot, InlineKeyboardUtil util, MessageUtil messageUtil) {
         this.botRepository = botRepository;
         this.reminderBot = reminderBot;
         this.util = util;
+        this.messageUtil = messageUtil;
     }
 
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 */10 * * * *")
     public void dutyReminder() {
-        List<BotUser> users = botRepository.findAll();
-        for (BotUser user : users) {
-            SendPhoto sendPhoto = new SendPhoto(user.getChatId(),
-                    new InputFile("https://media.istockphoto.com/id/879952484/photo/blaming-you-anxious-man-judged-by-different-people-pointing-fingers-at-him-negative-human.webp?b=1&s=170667a&w=0&k=20&c=z0g1MtC5yCYGAJErarxonh11Rst-DqRj73rIwR5LM6A="));
-            sendPhoto.setCaption("Bugun siz navbatchisiz!");
-            InlineKeyboardMarkup markup = util.getMarkup(util.getRowList(util.getRow(util.getInlineKeyboardButton("Almashtirish", "/change"))));
-            sendPhoto.setReplyMarkup(markup);
-            reminderBot.sendMsg(sendPhoto);
-        }
+        todayDuty();
     }
 
     public void sendSimpleMessage(Message message) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(message.getChatId()));
         User user = message.getFrom();
         String text = "Hi, " + user.getFirstName() + " jim o'tiring o'zim bilaman!";
-        sendMessage.setText(text);
+        SendMessage sendMessage = messageUtil.getSendMessage(message, text);
         reminderBot.sendMsg(sendMessage);
     }
 
@@ -75,6 +68,24 @@ public class BotService {
                     .orderNumber(-1)
                     .build();
             botRepository.save(botUser);
+        }
+    }
+
+    public void todayDuty() {
+        Optional<BotUser> userOpt = botRepository.findByDuty();
+        if (userOpt.isEmpty()) {
+            System.out.println("Bugun navbatchi yo'q ekan!");
+        } else {
+            BotUser user = userOpt.get();
+            String photo = "https://media.istockphoto.com/id/879952484/photo/blaming-you-anxious-man-judged-by-different-people-pointing-fingers-at-him-negative-human.webp?b=1&s=170667a&w=0&k=20&c=z0g1MtC5yCYGAJErarxonh11Rst-DqRj73rIwR5LM6A=";
+            String caption = "Bugun siz navbatchisiz!" + "\n@" + user.getUsername();
+            SendPhoto sendPhoto = messageUtil.getSendPhoto(photo, caption, user.getChatId());
+
+            InlineKeyboardButton changeButton = util.getInlineKeyboardButton("Almashtirish", "/change");
+            InlineKeyboardButton listDutyButton = util.getInlineKeyboardButton("Navbatchilar ro'yhati", "/listDuty");
+            InlineKeyboardMarkup markup = util.getMarkup(util.getRowList(util.getRow(changeButton), util.getRow(listDutyButton)));
+            sendPhoto.setReplyMarkup(markup);
+            reminderBot.sendMsg(sendPhoto);
         }
     }
 }
