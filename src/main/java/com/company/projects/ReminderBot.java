@@ -55,6 +55,7 @@ public class ReminderBot extends TelegramLongPollingBot {
 
             } else {
                 botService.sendSimpleMessage(message);
+
             }
         } else if (update.hasCallbackQuery()) {
             botRequestService.handleCallBack(update.getCallbackQuery());
