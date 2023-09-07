@@ -46,10 +46,13 @@ public class ReminderBot extends TelegramLongPollingBot {
             botService.addUser(message);
             if (message.getText().equals("/start")) {
                 botResponseService.start(message);
+
             } else if (message.getText().equalsIgnoreCase("Bugun kim navbatchi")) {
                 botService.todayDuty();
+
             } else if (message.getText().equalsIgnoreCase("salom")) {
                 botResponseService.hello(message);
+
             } else {
                 botService.sendSimpleMessage(message);
             }
