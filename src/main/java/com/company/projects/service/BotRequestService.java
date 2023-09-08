@@ -86,7 +86,7 @@ public class BotRequestService {
             reminderBot.sendMsg(deleteMessage);
 
             SendMessage sendMessage = messageUtil.getSendMessage(callbackQuery);
-            sendMessage.setText("Almashtirishni faqat navbatchi amalga oshirishi mumkin!");
+            sendMessage.setText("** Almashtirishni faqat navbatchi amalga oshirishi mumkin! **");
             InlineKeyboardMarkup markup = inlineKeyboardUtil.getMarkup(inlineKeyboardUtil.getRowList(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("OK", "/ok"))));
             sendMessage.setReplyMarkup(markup);
             reminderBot.sendMsg(sendMessage);
@@ -102,19 +102,19 @@ public class BotRequestService {
         SendMessage sendMessage = messageUtil.getSendMessage(callbackQuery);
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Navbatchilar ro'yhati: \n\n");
+        stringBuilder.append("** Navbatchilar ro'yhati: ** \n\n");
         for (int i = 1; i <= users.size(); i++) {
             Optional<BotUser> orderNumber = botRepository.findByOrderNumber(i);
             if (orderNumber.isEmpty()) {
                 System.out.println("Bunday tartib raqamdagi foydalanuvchi topilmadi!");
                 return;
             }
-            stringBuilder.append(i).append(" -> ").append(orderNumber.get().getUsername()).append("\n");
+            stringBuilder.append("**").append(i).append(" -> ").append("**").append(orderNumber.get().getUsername()).append("\n");
         }
         sendMessage.setText(stringBuilder.toString());
         InlineKeyboardMarkup markup = inlineKeyboardUtil.getMarkup(inlineKeyboardUtil
                 .getRowList(inlineKeyboardUtil.getRow(inlineKeyboardUtil
-                        .getInlineKeyboardButton("Orqaga", "/backToDuty"))));
+                        .getInlineKeyboardButton("Orqaga ⬅️", "/backToDuty"))));
         sendMessage.setReplyMarkup(markup);
         reminderBot.sendMsg(sendMessage);
     }
@@ -135,8 +135,8 @@ public class BotRequestService {
             botUser.setOrderNumber(order);
             botRepository.save(botUser);
             botRepository.save(duty);
-            editMessage.setText("Almashtirish muvaffaqiyatli amalga ishirildi!");
-            InlineKeyboardMarkup markup = inlineKeyboardUtil.getMarkup(inlineKeyboardUtil.getRowList(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("OK", "/ok"))));
+            editMessage.setText("* Almashtirish muvaffaqiyatli amalga ishirildi! *");
+            InlineKeyboardMarkup markup = inlineKeyboardUtil.getMarkup(inlineKeyboardUtil.getRowList(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("OK ✅", "/ok"))));
             editMessage.setReplyMarkup(markup);
             reminderBot.sendMsg(editMessage);
         }
@@ -148,18 +148,18 @@ public class BotRequestService {
         reminderBot.sendMsg(deleteMessage);
 
         SendMessage sendMessage = messageUtil.getSendMessage(callbackQuery);
-        sendMessage.setText("O'zgaritirish uchun foydalanuvchini tanlang:");
+        sendMessage.setText("* O'zgaritirish uchun foydalanuvchini tanlang: *");
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         for (BotUser botUser : users) {
             if (!botUser.getUsername().equals(callbackQuery.getFrom().getUserName())) {
-                rowList.add(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton(botUser.getUsername(),
+                rowList.add(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton(botUser.getUsername() + " \uD83D\uDC6E\uD83C\uDFFC\u200D♂️",
                         "/edit/" + botUser.getUsername())));
             }
         }
         if (rowList.isEmpty()) {
-            rowList.add(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("Foydalanuvchilar mavjud emas!", "/noData")));
+            rowList.add(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("Foydalanuvchilar mavjud emas! ❌", "/noData")));
         }
-        rowList.add(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("Orqaga", "/backToDuty")));
+        rowList.add(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("Orqaga ⬅️", "/backToDuty")));
         sendMessage.setReplyMarkup(inlineKeyboardUtil.getMarkup(rowList));
         reminderBot.sendMsg(sendMessage);
     }

@@ -1,6 +1,7 @@
 package com.company.projects.util;
 
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -18,12 +19,14 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 public class MessageUtil {
     public SendMessage getSendMessage(CallbackQuery callbackQuery) {
         SendMessage sendMessage = new SendMessage();
+        sendMessage.setParseMode(ParseMode.MARKDOWN);
         sendMessage.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
         return sendMessage;
     }
 
     public SendMessage getSendMessage(Message message, String text) {
         SendMessage sendMessage = new SendMessage();
+        sendMessage.setParseMode(ParseMode.MARKDOWN);
         sendMessage.setChatId(String.valueOf(message.getChatId()));
         sendMessage.setText(text);
         return sendMessage;

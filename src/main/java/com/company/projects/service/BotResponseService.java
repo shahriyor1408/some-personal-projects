@@ -28,13 +28,13 @@ public class BotResponseService {
     public void start(Message message) {
         String chatId = String.valueOf(message.getChatId());
         String photo = "https://play-lh.googleusercontent.com/ELarT28qLtY5LGU9y6mXwqsI6h4OJQhM-_JmJpvgQ-tcVwgxF5z3ymN2JEIIlw988Og_";
-        String caption = "Assalomu alaykum, bu bot orqali siz navbatchilikni nazorat qilishingiz mumkin.";
+        String caption = "** Assalomu alaykum,botga xush kelibsiz!\uD83C\uDF89 \n Bu bot orqali siz navbatchilikni nazorat qilishingiz mumkin. **\uD83D\uDD10";
         SendPhoto sendPhoto = messageUtil.getSendPhoto(photo, caption, chatId);
         reminderBot.sendMsg(sendPhoto);
     }
 
     public void hello(Message message) {
-        String text = "Salom, nima gap. Maza yaxshimi. Navbatchi yaxshi ishlayaptimi?";
+        String text = "Salom\uD83D\uDC4B, nima gap.\nMaza yaxshimi. \n*Navbatchi yaxshi ishlayaptimi?*";
         SendMessage sendMessage = messageUtil.getSendMessage(message, text);
         reminderBot.sendMsg(sendMessage);
     }

@@ -47,7 +47,7 @@ public class BotService {
 
     public void sendSimpleMessage(Message message) {
         User user = message.getFrom();
-        String text = "Hi, " + user.getFirstName() + " jim o'tiring o'zim bilaman!";
+        String text = "*Hi, " + user.getFirstName() + " jim o'tiring o'zim bilaman!*";
         SendMessage sendMessage = messageUtil.getSendMessage(message, text);
         reminderBot.sendMsg(sendMessage);
     }
@@ -65,10 +65,14 @@ public class BotService {
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
                     .isDuty(false)
-                    .orderNumber(-1)
+                    .orderNumber(setOrder() + 1)
                     .build();
             botRepository.save(botUser);
         }
+    }
+
+    private Integer setOrder() {
+        return botRepository.findMaxOrder().orElse(0);
     }
 
     public void todayDuty() {
@@ -78,11 +82,11 @@ public class BotService {
         } else {
             BotUser user = userOpt.get();
             String photo = "https://media.istockphoto.com/id/879952484/photo/blaming-you-anxious-man-judged-by-different-people-pointing-fingers-at-him-negative-human.webp?b=1&s=170667a&w=0&k=20&c=z0g1MtC5yCYGAJErarxonh11Rst-DqRj73rIwR5LM6A=";
-            String caption = "Bugun siz navbatchisiz!" + "\n@" + user.getUsername();
+            String caption = "** Bugun siz navbatchisiz! **" + "\n** Navbatchilikni vaqtida qiling! **" + "\n@" + user.getUsername();
             SendPhoto sendPhoto = messageUtil.getSendPhoto(photo, caption, user.getChatId());
 
-            InlineKeyboardButton changeButton = util.getInlineKeyboardButton("Almashtirish", "/change");
-            InlineKeyboardButton listDutyButton = util.getInlineKeyboardButton("Navbatchilar ro'yhati", "/listDuty");
+            InlineKeyboardButton changeButton = util.getInlineKeyboardButton("\uD83D\uDD04 Almashtirish \uD83D\uDD04 ", "/change");
+            InlineKeyboardButton listDutyButton = util.getInlineKeyboardButton("\uD83D\uDDD3 Navbatchilar ro'yhati \uD83D\uDDD3", "/listDuty");
             InlineKeyboardMarkup markup = util.getMarkup(util.getRowList(util.getRow(changeButton), util.getRow(listDutyButton)));
             sendPhoto.setReplyMarkup(markup);
             reminderBot.sendMsg(sendPhoto);

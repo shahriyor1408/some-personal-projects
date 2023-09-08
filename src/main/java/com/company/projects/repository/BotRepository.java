@@ -4,7 +4,6 @@ import com.company.projects.domains.BotUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.sql.RowSet;
 import java.util.Optional;
 
 /**
@@ -24,4 +23,7 @@ public interface BotRepository extends JpaRepository<BotUser, Long> {
 
     @Query("from bot_users where orderNumber = :i")
     Optional<BotUser> findByOrderNumber(int i);
+
+    @Query("select max(orderNumber) from bot_users")
+    Optional<Integer> findMaxOrder();
 }

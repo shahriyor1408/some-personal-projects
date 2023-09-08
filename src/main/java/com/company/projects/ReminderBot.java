@@ -57,14 +57,14 @@ public class ReminderBot extends TelegramLongPollingBot {
             } else if (message.getText().equalsIgnoreCase("Bugun kim navbatchi")) {
                 Optional<BotUser> userOpt = botRepository.findByDuty();
                 if (userOpt.isEmpty()) {
-                    SendMessage sendMessage = messageUtil.getSendMessage(message, "Bugun navbatchi mavjud emas!");
+                    SendMessage sendMessage = messageUtil.getSendMessage(message, "*Bugun navbatchi mavjud emas!*");
                     sendMsg(sendMessage);
                 } else {
                     botService.todayDuty();
                 }
 
             } else if (message.getText().equalsIgnoreCase("salom")) {
-                botResponseService.hello(message);
+                    botResponseService.hello(message);
 
             } else {
                 botService.sendSimpleMessage(message);
