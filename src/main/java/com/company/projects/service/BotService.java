@@ -74,7 +74,7 @@ public class BotService {
     public void todayDuty() {
         Optional<BotUser> userOpt = botRepository.findByDuty();
         if (userOpt.isEmpty()) {
-            System.out.println("Bugun navbatchi yo'q ekan!");
+            System.out.println("Bugun navbatchi mavjud emas!");
         } else {
             BotUser user = userOpt.get();
             String photo = "https://media.istockphoto.com/id/879952484/photo/blaming-you-anxious-man-judged-by-different-people-pointing-fingers-at-him-negative-human.webp?b=1&s=170667a&w=0&k=20&c=z0g1MtC5yCYGAJErarxonh11Rst-DqRj73rIwR5LM6A=";

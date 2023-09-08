@@ -58,7 +58,9 @@ public class BotRequestService {
                 }
 
             } else if (data.startsWith("/edit")) {
-                editCallBack(callbackQuery, data, duty);
+                if (check(callbackQuery, duty)) {
+                    editCallBack(callbackQuery, data, duty);
+                }
 
             } else if (data.equals("/listDuty")) {
                 listDutyCallBack(callbackQuery, users);

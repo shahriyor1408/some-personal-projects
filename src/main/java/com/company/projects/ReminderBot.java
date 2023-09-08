@@ -1,8 +1,11 @@
 package com.company.projects;
 
+import com.company.projects.domains.BotUser;
+import com.company.projects.repository.BotRepository;
 import com.company.projects.service.BotRequestService;
 import com.company.projects.service.BotResponseService;
 import com.company.projects.service.BotService;
+import com.company.projects.util.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
@@ -14,6 +17,8 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.Optional;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -30,6 +35,8 @@ public class ReminderBot extends TelegramLongPollingBot {
     private final BotService botService;
     private final BotRequestService botRequestService;
     private final BotResponseService botResponseService;
+    private final BotRepository botRepository;
+    private final MessageUtil messageUtil;
 
     public void setBotToken(String botToken) {
         this.botToken = botToken;
@@ -48,7 +55,13 @@ public class ReminderBot extends TelegramLongPollingBot {
                 botResponseService.start(message);
 
             } else if (message.getText().equalsIgnoreCase("Bugun kim navbatchi")) {
-                botService.todayDuty();
+                Optional<BotUser> userOpt = botRepository.findByDuty();
+                if (userOpt.isEmpty()) {
+                    SendMessage sendMessage = messageUtil.getSendMessage(message, "Bugun navbatchi mavjud emas!");
+                    sendMsg(sendMessage);
+                } else {
+                    botService.todayDuty();
+                }
 
             } else if (message.getText().equalsIgnoreCase("salom")) {
                 botResponseService.hello(message);
