@@ -37,7 +37,7 @@ public class MessageUtil {
 
     public EditMessageText getEditMessage(CallbackQuery callbackQuery) {
         EditMessageText editMessageText = new EditMessageText();
-        editMessageText.setMessageId(Integer.valueOf(callbackQuery.getId()));
+        editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
         return editMessageText;
     }
 

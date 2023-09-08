@@ -16,7 +16,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -46,12 +45,17 @@ public class BotRequestService {
         String data = callbackQuery.getData();
         List<BotUser> users = botRepository.findAll();
 
-        BotUser duty = check(callbackQuery);
-        if (Objects.isNull(duty)) {
-            System.out.println("Xatolik sodir bo'ldi!");
+        Optional<BotUser> userOpt = botRepository.findByDuty();
+        if (userOpt.isEmpty()) {
+            SendMessage sendMessage = messageUtil.getSendMessage(callbackQuery);
+            sendMessage.setText("Bugun navbatchi mavjud emas!");
+            reminderBot.sendMsg(sendMessage);
         } else {
+            BotUser duty = userOpt.get();
             if (data.equals("/change")) {
-                changeCallBack(callbackQuery, users);
+                if (check(callbackQuery, duty)) {
+                    changeCallBack(callbackQuery, users);
+                }
 
             } else if (data.startsWith("/edit")) {
                 editCallBack(callbackQuery, data, duty);
@@ -65,33 +69,34 @@ public class BotRequestService {
                 reminderBot.sendMsg(deleteMessage);
 
             } else if (data.equals("/backToDuty")) {
+                DeleteMessage deleteMessage = messageUtil.getDeleteMessage(callbackQuery);
+                deleteMessage.setChatId(duty.getChatId());
+                reminderBot.sendMsg(deleteMessage);
                 botService.todayDuty();
             }
         }
     }
 
-    private BotUser check(CallbackQuery callbackQuery) {
-        Optional<BotUser> userOpt = botRepository.findByDuty();
-        BotUser duty = null;
-        if (userOpt.isEmpty()) {
-            System.out.println("Bugun navbatchi mavjud emas!");
-        } else {
-            duty = userOpt.get();
-            if (!duty.getUsername().equals(callbackQuery.getFrom().getUserName())) {
-                EditMessageText editMessage = messageUtil.getEditMessage(callbackQuery);
-                editMessage.setChatId(duty.getChatId());
+    private boolean check(CallbackQuery callbackQuery, BotUser duty) {
+        if (!duty.getUsername().equals(callbackQuery.getFrom().getUserName())) {
+            DeleteMessage deleteMessage = messageUtil.getDeleteMessage(callbackQuery);
+            deleteMessage.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
+            reminderBot.sendMsg(deleteMessage);
 
-                editMessage.setText("Almashtirishni faqat navbatchi amalga oshirishi mumkin!");
-                InlineKeyboardMarkup markup = inlineKeyboardUtil.getMarkup(inlineKeyboardUtil.getRowList(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("OK", "/ok"))));
-                editMessage.setReplyMarkup(markup);
-                reminderBot.sendMsg(editMessage);
-            }
+            SendMessage sendMessage = messageUtil.getSendMessage(callbackQuery);
+            sendMessage.setText("Almashtirishni faqat navbatchi amalga oshirishi mumkin!");
+            InlineKeyboardMarkup markup = inlineKeyboardUtil.getMarkup(inlineKeyboardUtil.getRowList(inlineKeyboardUtil.getRow(inlineKeyboardUtil.getInlineKeyboardButton("OK", "/ok"))));
+            sendMessage.setReplyMarkup(markup);
+            reminderBot.sendMsg(sendMessage);
+            return false;
         }
-        return duty;
+        return true;
     }
 
     private void listDutyCallBack(CallbackQuery callbackQuery, List<BotUser> users) {
-        reminderBot.sendMsg(messageUtil.getDeleteMessage(callbackQuery));
+        DeleteMessage deleteMessage = messageUtil.getDeleteMessage(callbackQuery);
+        deleteMessage.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
+        reminderBot.sendMsg(deleteMessage);
         SendMessage sendMessage = messageUtil.getSendMessage(callbackQuery);
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -136,6 +141,10 @@ public class BotRequestService {
     }
 
     private void changeCallBack(CallbackQuery callbackQuery, List<BotUser> users) {
+        DeleteMessage deleteMessage = messageUtil.getDeleteMessage(callbackQuery);
+        deleteMessage.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
+        reminderBot.sendMsg(deleteMessage);
+
         SendMessage sendMessage = messageUtil.getSendMessage(callbackQuery);
         sendMessage.setText("O'zgaritirish uchun foydalanuvchini tanlang:");
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
